@@ -44,7 +44,7 @@ while ($datar = mysqli_fetch_array($datasql)) {
         "end" => $datar["date"],
         "color" => $lcolor,   // a non-ajax option
         "textColor" => $tcolor, // a non-ajax option	
-        "url" => "daily_reporting_entry.php?frompage=cal&user=" . $datar["ldap"] . "&datepicker=" . $datar["date"] . "",
+        "url" => "all_reporting_entry.php?frompage=cal&user=" . $datar["ldap"] . "&datepicker=" . $datar["date"] . "",
     );
 
     $rid++;

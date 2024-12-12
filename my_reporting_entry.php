@@ -10,7 +10,14 @@ if (!isset($_SESSION['ldap'])) {
     exit();
 }
 
-$page = "calendar";
+$page = "";
+if (isset($_REQUEST['frompage'])) {
+    if ($_REQUEST['frompage'] === "cal") {
+        $page = "calendar";
+    } elseif ($_REQUEST['frompage'] === "detail") {
+        $page = "details";
+    }
+}
 $userldap = $_SESSION['ldap'];
 $editflagno = 0;
 
@@ -128,17 +135,13 @@ if (mysqli_num_rows($existing_query) > 0) {
 
 
             <div id="about_right">
-
-
                 <div style="padding-top:20px;">
-
                     <table width="80%" align="center" border="0">
                         <tr>
                             <td colspan="3" align="center">
 
                             </td>
                         </tr>
-
                         <tr>
                             <td>
                                 <b>Date:</b> <?php echo date("d-m-Y", strtotime($date)); ?>
@@ -163,10 +166,18 @@ if (mysqli_num_rows($existing_query) > 0) {
 
                             <td><?php if ($editflagno == 1) { ?><b>Updated by:</b> <?php echo getName($userldap); ?> <?php } ?></td>
                             <td><?php if ($editflagno == 1) { ?><b>Updated on:</b> <?php echo date("d-m-Y h:i", strtotime($totalhourrow["timestamp"])); ?> <?php } ?></td>
-                            <td align="center">
+                            <!-- <td align="center">
                                 <?php if ($_REQUEST['frompage'] == "detail") { ?>
                                     <a style="color:#00F; font-weight:bold;" href="my_daily_reporting_details.php?searchuser=true&user=<?php echo $userldap; ?>&from=<?php echo $_REQUEST['from']; ?>&to=<?php echo $_REQUEST['to']; ?>"> Back </a>
                                 <?php } else if ($_REQUEST['frompage'] == "cal") { ?>
+                                    <a style="color:#00F; font-weight:bold;" href="my_calender.php?searchuser=true&user=<?php echo $userldap; ?>&from=<?php echo $_REQUEST['from']; ?>&to=<?php echo $_REQUEST['to']; ?>"> Back </a>
+                                <?php } ?>
+                            </td> -->
+
+                            <td align="center">
+                                <?php if ($page === "details") { ?>
+                                    <a style="color:#00F; font-weight:bold;" href="my_daily_reporting_details.php?searchuser=true&user=<?php echo $userldap; ?>&from=<?php echo $_REQUEST['from']; ?>&to=<?php echo $_REQUEST['to']; ?>"> Back </a>
+                                <?php } elseif ($page === "calendar") { ?>
                                     <a style="color:#00F; font-weight:bold;" href="my_calender.php?searchuser=true&user=<?php echo $userldap; ?>&from=<?php echo $_REQUEST['from']; ?>&to=<?php echo $_REQUEST['to']; ?>"> Back </a>
                                 <?php } ?>
                             </td>

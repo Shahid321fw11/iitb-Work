@@ -249,8 +249,7 @@ if ((isset($_REQUEST["from"]) && ($_REQUEST["from"] != "")) && (isset($_REQUEST[
                                         <td align="center" valign="top"><?php echo date("d-m-Y h:s", strtotime($record["timestamp"])); ?></td>
                                         <?php if ($_REQUEST["user"] != "all") { ?>
                                             <td align="center" valign="top">
-                                                <a href="my_reporting_entry.php?frompage=detail&user=<?php echo $_SESSION['ldap']; ?>&datepicker=<?php echo
-                                                                                                                                                    $record["date"]; ?>&from=<?php echo $_REQUEST["from"]; ?>&to=<?php echo $_REQUEST["to"]; ?>"><img src="images/task_view.png" /></a>
+                                                <a href="my_reporting_entry.php?frompage=detail&user=<?php echo $_SESSION['ldap']; ?>&datepicker=<?php echo $record["date"]; ?>&from=<?php echo $_REQUEST["from"]; ?>&to=<?php echo $_REQUEST["to"]; ?>"><img src="images/task_view.png" /></a>
                                             </td>
                                             <td align="center" valign="top">
                                                 <?php
