@@ -74,8 +74,8 @@ if (isset($_REQUEST["drentry"])) {
             } else {
                 // $recordset = mysqli_query($link, "insert into `daily_reporting_data` (`ldap`,`date`,`taskid`,`taskdesc`,`hours`) values ('" . $_SESSION['ldap'] . "','" . $dateentry . "','" . $i . "','" . ($taskdescription) . "','" . $taskhours . "')");
                 // Insert query updated to include default values for new columns
-                mysqli_query($link, "insert into `daily_reporting_data` (`ldap`,`date`,`taskid`,`taskdesc`,`hours`,`manager_ldap`,`score`,`score_timestamp`) 
-                values ('" . $_SESSION['ldap'] . "','" . $dateentry . "','" . $i . "','" . ($taskdescription) . "','" . $taskhours . "', NULL, '', NULL)");
+                mysqli_query($link, "insert into `daily_reporting_data` (`ldap`,`date`,`taskid`,`taskdesc`,`hours`,`manager_ldap`,`score`,`score_timestamp`,`status`) 
+                values ('" . $_SESSION['ldap'] . "','" . $dateentry . "','" . $i . "','" . ($taskdescription) . "','" . $taskhours . "', NULL, '', NULL,0)");
             }
         }
 

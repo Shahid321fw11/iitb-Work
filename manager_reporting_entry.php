@@ -83,10 +83,34 @@ if (isset($_REQUEST["drentry"])) {
 }
 
 $totalhours = 0;
+// $manager_status_view = false;
+// echo "Manager Status View: " . ($manager_status_view ? "True" : "False") . "<br>";
 $existing_query = mysqli_query($link, "select * from daily_reporting_data where date='" . $date . "' and ldap='" . $userldap . "' order by id asc");
 if (mysqli_num_rows($existing_query) > 0) {
     $totalhourrow = mysqli_fetch_array(mysqli_query($link, "select sum(hours) as t,timestamp from daily_reporting_data where date='" . $date . "' and ldap='" . $userldap . "'"));
 }
+
+// $manager_status_view = false;
+// echo "Manager Status View: " . ($manager_status_view ? "True" : "False") . "<br>";
+
+// // Display table content (You should ensure this section is outside the loop where you fetch the manager status)
+// // $existing_query = mysqli_query($link, "SELECT * FROM daily_reporting_data WHERE date='" . $date . "' AND ldap='" . $userldap . "' ORDER BY id ASC");
+// if (mysqli_num_rows($existing_query) > 0) {
+//     while ($row = mysqli_fetch_assoc($existing_query)) {
+//         if ($row['status'] == 1) {
+//             $manager_status_view = true;
+//         }
+//     }
+// }
+// echo "Manager Status View: " . ($manager_status_view ? "True" : "False") . "<br>";
+
+
+
+
+
+// echo "Manager Status View: " . ($manager_status_view ? "True" : "False") . "<br>";
+// echo `$manager_status_view`;
+
 
 ?>
 
@@ -114,7 +138,9 @@ if (mysqli_num_rows($existing_query) > 0) {
                                 <b>Date:</b> <?php echo date("d-m-Y", strtotime($date)); ?>
                             </td>
                             <td id="totalhours">
-                                <b>Total Hours:</b> <?php if ($totalhourrow["t"] != "") {echo getHoursMinutes($totalhourrow["t"])}?>
+                                <b>Total Hours:</b> <?php if ($totalhourrow["t"] != "") {
+                                                        echo getHoursMinutes($totalhourrow["t"]);
+                                                    } ?>
                             </td>
                             <td align="center">
                                 <form name="submitdate" method="post" id="submitdate">
@@ -143,29 +169,48 @@ if (mysqli_num_rows($existing_query) > 0) {
                     <form method="post" name="submitentry">
                         <input type="hidden" name="datepicker1" id="datepicker1" value="<?php echo $date; ?>" />
                         <table width="80%" cellspacing="0" align="center" border="0" class="manage" id="dailyentry">
-                            <tr class="bluestrip" height="30">
-                                <th width="15%">Sr. No.</th>
-                                <th width="70%">Task Details</th>
-                                <th width="5%">Minutes</th>
-                                <th width="10%">Score</th>
-                            </tr>
-
                             <?php
                             $label = "Add";
+
+                            $manager_status_view = false;
+                            echo "Manager Status View: " . ($manager_status_view ? "True" : "False") . "<br>";
+                            $sr = 0;
+                            echo "Manager Status View: " . $sr . "<br>";
+
                             if (mysqli_num_rows($existing_query) > 0) {
                                 $label = "Update";
-                                $sr = 0;
+                                // $sr = 0;
+                                // echo "Manager Status View: " . $sr . "<br>";
+
                                 $taskarray = array();
                                 while ($record = mysqli_fetch_array($existing_query)) {
                                     $taskarray[$sr]["taskdesc"] = $record["taskdesc"];
                                     $taskarray[$sr]["hours"] = $record["hours"];
                                     $sr++;
+                                    if ($record['status'] == 1) {
+                                        $manager_status_view = true;
+                                    }
                                 }
                             }
+                            echo "Manager Status View: " . $sr . "<br>";
+                            echo "Manager Status View: " . ($manager_status_view ? "True" : "False") . "<br>";
+
                             ?>
+                            <tr class="bluestrip" height="30">
+                                <th width="15%">Sr. No.</th>
+                                <th width="70%">Task Details</th>
+                                <th width="5%">Minutes</th>
+                                <?php
+                                if ($manager_status_view) {
+                                    echo '<th width="10%">Score</th>';
+                                }
+                                ?>
+                            </tr>
+
                             <?php
                             $sr1 = 0;
                             while ($sr1 < 10) {
+
                             ?>
                                 <tr>
                                     <td align="center" valign="top"><?php echo ($sr1 + 1); ?></td>
@@ -177,21 +222,46 @@ if (mysqli_num_rows($existing_query) > 0) {
                                     </td>
 
                                     <td align="center" valign="top">
-                                        <?php if (trim($taskarray[$sr1]["taskdesc"]) != "") { ?>
-                                            <input type="radio" name="score_<?php echo $sr1; ?>" value="Yes" id="thumbs_up_<?php echo $sr1; ?>"
-                                                <?php
-                                                $score_query = mysqli_query($link, "SELECT score FROM daily_reporting_data WHERE ldap='" . $userldap . "' AND `date`='" . $date . "' AND taskid='" . ($sr1 + 1) . "'");
-                                                $score_data = mysqli_fetch_array($score_query);
-                                                if ($score_data['score'] == 'Yes') echo 'checked';
-                                                ?>
-                                                onchange="updateScore(<?php echo $sr1; ?>, 'Yes')" />
-                                            <label for="thumbs_up_<?php echo $sr1; ?>" style="cursor:pointer;">👍</label>
+                                        <?php
+                                        // Fetch the score value for the task
+                                        $score_query = mysqli_query($link, "SELECT score FROM daily_reporting_data WHERE ldap='" . $userldap . "' AND `date`='" . $date . "' AND taskid='" . ($sr1 + 1) . "'");
+                                        $score_data = mysqli_fetch_array($score_query);
+                                        echo "<script>console.log(" . $score_data['score'] . ", typeof " . $score_data['score'] . ");</script>";
 
-                                            <input type="radio" name="score_<?php echo $sr1; ?>" value="No" id="thumbs_down_<?php echo $sr1; ?>"
-                                                <?php if ($score_data['score'] == 'No') echo 'checked'; ?>
-                                                onchange="updateScore(<?php echo $sr1; ?>, 'No')" />
-                                            <label for="thumbs_down_<?php echo $sr1; ?>" style="cursor:pointer;">👎</label>
-                                        <?php } ?>
+                                        $score_value = (string)$score_data['score'];
+                                        echo "<script>console.log($score_value);</script>";
+
+                                        // Check if the score value is '0'
+                                        if (trim($taskarray[$sr1]["taskdesc"]) != "" && $manager_status_view) {
+                                            if ($score_data['score'] == '0') {
+                                                // If score is '0', show the input radio buttons with dynamic values
+                                        ?>
+                                                <input type="radio" name="score_<?php echo $sr1; ?>" id="thumbs_up_<?php echo $sr1; ?>"
+                                                    onchange="updateScore(<?php echo $sr1; ?>, '1/<?php echo $sr; ?>')" />
+                                                <label for="thumbs_up_<?php echo $sr1; ?>" style="cursor:pointer;">👍</label>
+
+                                                <input type="radio" name="score_<?php echo $sr1; ?>" id="thumbs_down_<?php echo $sr1; ?>"
+                                                    onchange="updateScore(<?php echo $sr1; ?>, '-1/<?php echo $sr; ?>')" />
+                                                <label for="thumbs_down_<?php echo $sr1; ?>" style="cursor:pointer;">👎</label>
+                                                <?php
+                                            } else {
+                                                // If score is not '0', display the thumbs-up/thumbs-down icon based on the score value
+                                                if ($score_value > 0) {
+                                                    // If the score is 'Yes', show thumbs-up
+                                                ?>
+                                                    <span>👍</span>
+                                                <?php
+                                                } elseif ($score_value < 0) {
+                                                    // If the score is 'No', show thumbs-down
+                                                ?>
+                                                    <span>👎</span>
+                                        <?php
+                                                }
+                                            }
+                                        }
+                                        ?>
+
+
                                     </td>
                                 </tr>
                             <?php
@@ -221,7 +291,8 @@ if (mysqli_num_rows($existing_query) > 0) {
     function updateScore(taskId, score) {
         var date = '<?php echo $date; ?>'; // Get the current date
         var taskid = taskId + 1; // Task id starts from 1
-        var scoreValue = score; // The score value (Yes or No)
+        console.log(score, typeof(score))
+        var scoreValue = score;
         var managerLdap = '<?php echo $userldap; ?>';
         // Send AJAX request to update the score
         var xhr = new XMLHttpRequest();
@@ -230,6 +301,7 @@ if (mysqli_num_rows($existing_query) > 0) {
         xhr.onreadystatechange = function() {
             if (xhr.readyState == 4 && xhr.status == 200) {
                 console.log('Score updated successfully');
+                window.location.reload(); // Reload the page
             }
         };
         xhr.send('action=update_score&date=' + date + '&taskid=' + taskid + '&score=' + scoreValue);
