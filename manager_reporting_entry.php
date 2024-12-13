@@ -74,7 +74,7 @@ if (isset($_REQUEST["drentry"])) {
             if (mysqli_num_rows($existing_task) > 0) {
                 mysqli_query($link, "update `daily_reporting_data` set `taskdesc`='" . ($taskdescription) . "',`hours`='" . $taskhours . "' where `ldap`='" . $_SESSION['ldap'] . "' and `date`='$dateentry' and `taskid`='$i'");
             } else {
-                $recordset = mysqli_query($link, "insert into `daily_reporting_data` (`ldap`,`date`,`taskid`,`taskdesc`,`hours`) values ('" . $_SESSION['ldap'] . "','" . $dateentry . "','" . $i . "','" . ($taskdescription) . "','" . $taskhours . "')");
+                mysqli_query($link, "insert into `daily_reporting_data` (`ldap`,`date`,`taskid`,`taskdesc`,`hours`) values ('" . $_SESSION['ldap'] . "','" . $dateentry . "','" . $i . "','" . ($taskdescription) . "','" . $taskhours . "')");
             }
         }
         $i++;
@@ -106,13 +106,15 @@ if (mysqli_num_rows($existing_query) > 0) {
                 <div style="padding-top:20px;">
                     <table width="80%" align="center" border="0">
                         <tr>
+                            <td colspan="3" align="center">
+                            </td>
+                        </tr>
+                        <tr>
                             <td>
                                 <b>Date:</b> <?php echo date("d-m-Y", strtotime($date)); ?>
                             </td>
                             <td id="totalhours">
-                                <b>Total Hours:</b> <?php if ($totalhourrow["t"] != "") {
-                                                        echo getHoursMinutes($totalhourrow["t"]);
-                                                    } ?>
+                                <b>Total Hours:</b> <?php if ($totalhourrow["t"] != "") {echo getHoursMinutes($totalhourrow["t"])}?>
                             </td>
                             <td align="center">
                                 <form name="submitdate" method="post" id="submitdate">
@@ -123,11 +125,15 @@ if (mysqli_num_rows($existing_query) > 0) {
                                     <?php } ?>
                                 </form>
                             </td>
+                        </tr>
+                        <tr>
+                            <td><?php if ($editflagno == 1) { ?><b>Updated by:</b> <?php echo getName($userldap); ?> <?php } ?></td>
+                            <td><?php if ($editflagno == 1) { ?><b>Updated on:</b> <?php echo date("d-m-Y h:i", strtotime($totalhourrow["timestamp"])); ?> <?php } ?></td>
                             <td align="center">
-                                <?php if ($page === "all_calendar") { ?>
-                                    <a style="color:#00F; font-weight:bold;" href="all_calender_view.php?searchuser=true&user=<?php echo $userldap; ?>&from=<?php echo $_REQUEST['from']; ?>&to=<?php echo $_REQUEST['to']; ?>"> Back</a>
-                                <?php } elseif ($page === "all_details") { ?>
-                                    <a style="color:#00F; font-weight:bold;" href="all_reporting_details.php?searchuser=true&user=<?php echo $userldap; ?>&from=<?php echo $_REQUEST['from']; ?>&to=<?php echo $_REQUEST['to']; ?>"> Back</a>
+                                <?php if ($page === "team_calendar") { ?>
+                                    <a style="color:#00F; font-weight:bold;" href="manager_calender_view.php"> Back</a>
+                                <?php } elseif ($page === "team_details") { ?>
+                                    <a style="color:#00F; font-weight:bold;" href="team_reporting_details.php"> Back</a>
                                 <?php } ?>
                             </td>
 
@@ -192,7 +198,6 @@ if (mysqli_num_rows($existing_query) > 0) {
                                 $sr1++;
                             }
                             ?>
-
                             <tr>
                                 <td colspan="2" align="center">
                                     <input <?php if ($editflagno == 1 || $enableflag == 1) { ?> disabled="disabled" <?php } ?> type="submit" name="drentry" value="<?php echo $label; ?>" />
@@ -201,12 +206,10 @@ if (mysqli_num_rows($existing_query) > 0) {
                             </tr>
                         </table>
                     </form>
-
                     <div style="height:20px;"></div>
                 </div>
             </div>
         </div>
-
         <div style="clear:both;"></div>
     </div>
 </div>
@@ -234,29 +237,16 @@ if (mysqli_num_rows($existing_query) > 0) {
 </script>
 
 <?php
-// if (isset($_POST['action']) && $_POST['action'] == 'update_score') {
-//     $taskid = $_POST['taskid'];
-//     $score = $_POST['score'];
-//     $date = $_POST['date'];
-
-//     // Update the score in the database
-//     $update_query = "UPDATE daily_reporting_data SET score = '$score' WHERE ldap = '" . $_SESSION['ldap'] . "' AND date = '$date' AND taskid = '$taskid'";
-//     mysqli_query($link, $update_query);
-// }
-
 if (isset($_POST['action']) && $_POST['action'] == 'update_score') {
     $taskid = $_POST['taskid'];
     $score = $_POST['score'];
     $date = $_POST['date'];
     // $manager_ldap = $_POST['manager_ldap']; // Manager LDAP passed via AJAX
-
     // Fetch the row ID using the combination of date and taskid (since it's unique for each record)
     $task_query = mysqli_query($link, "SELECT id FROM daily_reporting_data WHERE date = '$date' AND taskid = '$taskid'");
     $task = mysqli_fetch_array($task_query);
-
     if ($task) {
         $task_id = $task['id'];
-
         // Update the score and set the manager_ldap value
         $update_query = "UPDATE daily_reporting_data SET score = '$score', manager_ldap = '" . $_SESSION['ldap'] . "', score_timestamp = NOW() WHERE id = '$task_id'";
         mysqli_query($link, $update_query);

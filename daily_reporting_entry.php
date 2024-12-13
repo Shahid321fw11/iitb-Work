@@ -55,28 +55,19 @@ while ($fdata = mysqli_fetch_array($predatesql)) {
 <?php
 
 if (isset($_REQUEST["drentry"])) {
-
-
     $dateentry = check_date(mysqli_real_escape_string($link, $_REQUEST['datepicker1']));
     $tasks = array();
     $hours = array();
     $minutes = array();
-
-
     $tasks = array_map(array($link, 'real_escape_string'), $_REQUEST["task"]);
     $hours = array_map(array($link, 'real_escape_string'), $_REQUEST["hours"]);
 
-
-
     $i = 1;
     for ($counter = 0; $counter < count($tasks); $counter++) {
-
         $taskdescription = $tasks[$counter];
         $taskhours = $hours[$counter];
 
         if (trim($tasks[$counter]) != "") {
-
-
             $existing_task = mysqli_query($link, "select * from `daily_reporting_data` where `date`='" . $dateentry . "' and `ldap`='" . $_SESSION['ldap'] . "' and `taskid`='$i'");
             if (mysqli_num_rows($existing_task) > 0) {
                 mysqli_query($link, "update `daily_reporting_data` set `taskdesc`='" . ($taskdescription) . "',`hours`='" . $taskhours . "' where `ldap`='" . $_SESSION['ldap'] . "' and `date`='$dateentry' and `taskid`='$i'");
@@ -102,7 +93,6 @@ if (isset($_REQUEST["drentry"])) {
 $totalhours = 0;
 $existing_query = mysqli_query($link, "select * from daily_reporting_data where date='" . $date . "' and ldap='" . $userldap . "' order by id asc");
 if (mysqli_num_rows($existing_query) > 0) {
-
     $totalhourrow = mysqli_fetch_array(mysqli_query($link, "select sum(hours) as t,timestamp from daily_reporting_data where date='" . $date . "' and ldap='" . $userldap . "'"));
 }
 
@@ -129,10 +119,7 @@ if (mysqli_num_rows($existing_query) > 0) {
 
 
             <div id="about_right">
-
-
                 <div style="padding-top:20px;">
-
                     <table width="80%" align="center" border="0">
                         <tr>
                             <td colspan="3" align="center">
