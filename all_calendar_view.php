@@ -76,9 +76,9 @@ while ($datar = mysqli_fetch_array($datasql)) {
             <div id="about_right">
                 <div style="padding-top:20px;">
                     <?php if ($isAdmin): ?>
-                        <a href="download_details.php" style="text-align:right; text-decoration:none; vertical-align:middle; font-weight:bold;">
+                        <!-- <a href="download_details.php" style="text-align:right; text-decoration:none; vertical-align:middle; font-weight:bold;">
                             Download <img src="images/save.png" alt="save as csv" />
-                        </a><br />
+                        </a><br /> -->
                         <div id='calendar'></div>
                         <br /><br />
                         <div style="height:20px;"></div>

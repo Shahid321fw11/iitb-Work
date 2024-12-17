@@ -37,43 +37,20 @@ if ((isset($_REQUEST["from"]) && ($_REQUEST["from"] != "")) && (isset($_REQUEST[
     $currentmonth = mysqli_real_escape_string($link, $_REQUEST["from"]);
     $currentyear = mysqli_real_escape_string($link, $_REQUEST["to"]);
 }
+// echo "<script>console.log('checikgn',$currentuser,$currentmonth,$currentyear)</script>";
 ?>
-
-
-<?php
-$currentmonth = date("m");
-$currentyear = date("Y");
-$currentuser = '';
-
-if (isset($_REQUEST["user"])) {
-    $currentuser = mysqli_real_escape_string($link, $_REQUEST["user"]);
-}
-
-if ((isset($_REQUEST["from"]) && ($_REQUEST["from"] != "")) && (isset($_REQUEST["to"]) && ($_REQUEST["to"] != ""))) {
-    $currentmonth = mysqli_real_escape_string($link, $_REQUEST["from"]);
-    $currentyear = mysqli_real_escape_string($link, $_REQUEST["to"]);
-}
-?>
-
 
 <?php include('header.php'); ?>
 
 <div id="main">
     <div class="midContent_about">
-
-
-
         <div id="midContent_bottom" style=" height:auto;">
             <div id="about_left">
                 <div class="about_tab">Logged in as <?php echo getName($_SESSION["ldap"]); ?>
                 </div>
                 <div id="main-menu">
-
-
                     <?php include('menu.php'); ?>
-
                 </div>
-
             </div>
 
             <?php if ($isAdmin): ?>
@@ -164,6 +141,7 @@ if ((isset($_REQUEST["from"]) && ($_REQUEST["from"] != "")) && (isset($_REQUEST[
                             </tr>
 
                             <?php
+                            $totalDates = array();
                             if (isset($_REQUEST["searchuser"])) {
                                 $sql = "";
                                 $esql = "";
@@ -187,6 +165,10 @@ if ((isset($_REQUEST["from"]) && ($_REQUEST["from"] != "")) && (isset($_REQUEST[
                                         $slothours = 0;
                                         $slothourstotal = 0;
                                         $slothoursepoch = 0;
+                                        $date = date("Y-m-d", strtotime($record["date"])); // Format the date
+                                        array_push($totalDates, $date) // Add the date to the PHP array
+
+
                             ?>
                                         <?php
                                         $slotbookingid = ($record["ldap"]);
@@ -200,6 +182,11 @@ if ((isset($_REQUEST["from"]) && ($_REQUEST["from"] != "")) && (isset($_REQUEST[
                                             <td align="center" valign="top"><?php echo $sr; ?></td>
                                             <td align="center" valign="top"><?php echo getName($record["ldap"]); ?></td>
                                             <td align="center" valign="top"><?php echo date("d-m-Y", strtotime($record["date"])); ?></td>
+                                            <!-- <script>
+                                                Log ldap and date to the console
+                                                totalDates.push('<?php echo $date; ?>');
+                                                console.log("LDAP: <?php echo $record['ldap']; ?>, Date: <?php echo date('Y-m-d', strtotime($record['date'])); ?>");
+                                            </script> -->
                                             <td align="center" valign="top"><?php
                                                                             if ($slotbookingid != 0) {
                                                                                 if (mysqli_num_rows($slotsql) > 0) {
@@ -226,8 +213,7 @@ if ((isset($_REQUEST["from"]) && ($_REQUEST["from"] != "")) && (isset($_REQUEST[
                                             <td align="center" valign="top"><?php echo date("d-m-Y h:s", strtotime($record["timestamp"])); ?></td>
                                             <?php if ($_REQUEST["user"] != "all") { ?>
                                                 <td align="center" valign="top">
-                                                    <a href="daily_reporting_entry.php?frompage=detail&user=<?php echo $_REQUEST["user"]; ?>&datepicker=<?php echo
-                                                                                                                                                        $record["date"]; ?>&from=<?php echo $_REQUEST["from"]; ?>&to=<?php echo $_REQUEST["to"]; ?>"><img src="images/task_view.png" /></a>
+                                                    <a href="all_reporting_entry.php?frompage=detail&user=<?php echo $_REQUEST["user"]; ?>&datepicker=<?php echo $record["date"]; ?>&from=<?php echo $_REQUEST["from"]; ?>&to=<?php echo $_REQUEST["to"]; ?>"><img src="images/task_view.png" /></a>
                                                 </td>
                                                 <td align="center" valign="top">
                                                     <?php
@@ -245,9 +231,6 @@ if ((isset($_REQUEST["from"]) && ($_REQUEST["from"] != "")) && (isset($_REQUEST[
                                             <?php } ?>
                                         </tr>
                             <?php
-
-
-
                                         $daterangesum = $daterangesum + $sumtoadd;
 
 
@@ -259,9 +242,37 @@ if ((isset($_REQUEST["from"]) && ($_REQUEST["from"] != "")) && (isset($_REQUEST[
                                 }
                             }
                             ?>
-                            <tr>
+
+                            <!-- <tr>
                                 <td colspan="<?php echo $colspan; ?>" align="left"><b><?php if (isset($_REQUEST["searchuser"])) { ?>Total hours in selected date range=> <?php echo getHoursMinutes($daterangesum); ?> <?php } ?></b></td>
+                            </tr> -->
+
+                            <tr>
+                                <td colspan="<?php echo $colspan + 1; ?>">
+                                    <b>
+
+                                        Total hours in selected date range => <?php echo getHoursMinutes($daterangesum); ?> |
+                                        Total Score => <?php
+
+                                                        // Ensure $totalDates and $userldap are safely formatted
+                                                        $safeDates = $totalDates; // Convert PHP array to JSON format
+                                                        $safeUserLdap = isset($_REQUEST["user"]) ? addslashes($_REQUEST["user"]) : 'N/A';
+
+                                                        // Log the values to console
+                                                        // echo "<script>";
+                                                        // echo "console.log('Total Dates: " . $safeDates . "');";
+                                                        // echo "console.log('User LDAP: " . $safeUserLdap . "');";
+                                                        // echo "</script>";
+
+                                                        // Now calculate and echo the total score
+                                                        $getScoreResultTotal = getScoreTotal($safeUserLdap, $totalDates);
+                                                        echo $getScoreResultTotal;
+                                                        ?>
+
+                                    </b>
+                                </td>
                             </tr>
+
                         </table>
                         </form>
                         <br /><br />
@@ -286,10 +297,6 @@ if ((isset($_REQUEST["from"]) && ($_REQUEST["from"] != "")) && (isset($_REQUEST[
         </div>
 
         <div style="clear:both;"></div>
-
-
     </div>
 </div>
-
-
 <?php include('footer.php'); ?>

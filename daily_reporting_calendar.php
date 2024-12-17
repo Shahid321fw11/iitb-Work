@@ -16,7 +16,7 @@ if ($_SESSION['ldap'] == "888" || $_SESSION['ldap'] == "1") {
 } else {
 	$sql = "SELECT a.ldap,a.date,sum(a.hours) as t_hours FROM `daily_reporting_data` as a   where a.ldap='" . $_SESSION['ldap'] . "' group by a.ldap,a.date";
 }
-echo $sql;
+// echo $sql;
 $page = "calendar";
 
 ?>

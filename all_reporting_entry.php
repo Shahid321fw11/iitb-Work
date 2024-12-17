@@ -173,10 +173,18 @@ if (mysqli_num_rows($existing_query) > 0) {
                             <td><?php if ($editflagno == 1) { ?><b>Updated on:</b> <?php echo date("d-m-Y h:i", strtotime($totalhourrow["timestamp"])); ?> <?php } ?></td>
                             <td align="center">
                                 <?php if ($_REQUEST['frompage'] == "detail") { ?>
-                                    <a style="color:#00F; font-weight:bold;" href="daily_reporting_details.php?searchuser=true&user=<?php echo $userldap; ?>&from=<?php echo $_REQUEST['from']; ?>&to=<?php echo $_REQUEST['to']; ?>"> Back </a>
+                                    <a style="color:#00F; font-weight:bold;" href="all_reporting_details.php?searchuser=true&user=<?php echo $userldap; ?>&from=<?php echo $_REQUEST['from']; ?>&to=<?php echo $_REQUEST['to']; ?>"> Back </a>
                                 <?php } else if ($_REQUEST['frompage'] == "cal") { ?>
-                                    <a style="color:#00F; font-weight:bold;" href="daily_reporting_calendar.php?searchuser=true&user=<?php echo $userldap; ?>&from=<?php echo $_REQUEST['from']; ?>&to=<?php echo $_REQUEST['to']; ?>"> Back </a>
+                                    <a style="color:#00F; font-weight:bold;" href="all_calendar_view.php"> Back </a>
                                 <?php } ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <?php
+                                $getScoreResult = getScore($userldap, $date); // Ensure $userldap and $date are defined
+                                echo "<b>Score Value:</b> " . $getScoreResult; // Display the total score
+                                ?>
                             </td>
                         </tr>
 

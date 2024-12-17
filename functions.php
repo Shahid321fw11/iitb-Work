@@ -71,8 +71,10 @@ function toMinues($t)
 }
 
 
+// this function is for getting single day score :- Shahid Ansari, 16 December 2024.
 function getScore($ldap, $date)
 {
+	// echo "<script>console.log('date:$date');</script>";
 	global $link;
 	$existing_query = mysqli_query($link, "SELECT * FROM daily_reporting_data WHERE date = '$date' AND ldap = '$ldap' ORDER BY id ASC");
 	$totalScore = 0; // Variable to calculate total score
@@ -87,11 +89,34 @@ function getScore($ldap, $date)
 			$counter++;
 		}
 	}
-	echo "<script>console.log('Total Score:', $totalScore);</script>";
-	echo "<script>console.log('Total row:', $counter);</script>";
+	// echo "<script>console.log('Total Score:', $totalScore);</script>";
+	// echo "<script>console.log('Total row:', $counter);</script>";
 	$averageScore = ($counter > 0) ? $totalScore / $counter : 0;
 	$formattedScore = number_format($averageScore, 2); // Format the result to 2 decimal places
+	// echo "<script>console.log('format:', $formattedScore);</script>";
+
 
 	// Return the formatted average score
 	return $formattedScore;
+}
+
+
+function getScoreTotal($ldap, $dates)
+{
+	$totalScore = 0; // Variable to hold the total score
+
+	// Loop through all dates in the $dates array
+	foreach ($dates as $date) {
+		// Call getScore for each date and add the result to $totalScore
+		$dailyScore = getScore($ldap, $date);
+		$totalScore += floatval($dailyScore); // Ensure numeric addition
+	}
+
+	// Format the total score to 2 decimal places
+	$formattedTotalScore = number_format($totalScore, 2);
+
+	// Log the total score for debugging
+	// echo "<script>console.log('Ldfsdfsodfispdfisodfi: $ldap, Total Score: $formattedTotalScore');</script>";
+
+	return $formattedTotalScore;
 }
