@@ -62,7 +62,7 @@ session_start();
 				dateFormat: 'yy-mm-dd',
 				changeMonth: true,
 				changeYear: true,
-				minDate: "-6d",
+				minDate: "-4d",
 				maxDate: new Date(),
 				beforeShowDay: function(date) {
 					var y = date.getFullYear().toString(); // get full year

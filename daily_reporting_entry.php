@@ -30,7 +30,7 @@ $curr_dt_time = date("Y-m-d");
 $validsql = mysqli_query($link, "select * from daily_reporting_data where ldap='" . $_SESSION['ldap'] . "' and `date`='" . date("Y-m-d", strtotime($date)) . "'");
 
 if (mysqli_num_rows($validsql) > 0) {
-    $finalenddt = strtotime("$date + 48 hours");
+    $finalenddt = strtotime("$date + 72 hours");
 } else {
     $finalenddt = strtotime("$date + 1 week");
 }
@@ -53,6 +53,9 @@ while ($fdata = mysqli_fetch_array($predatesql)) {
 <?php include('header.php'); ?>
 
 <?php
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
 
 if (isset($_REQUEST["drentry"])) {
     $dateentry = check_date(mysqli_real_escape_string($link, $_REQUEST['datepicker1']));
@@ -74,8 +77,8 @@ if (isset($_REQUEST["drentry"])) {
             } else {
                 // $recordset = mysqli_query($link, "insert into `daily_reporting_data` (`ldap`,`date`,`taskid`,`taskdesc`,`hours`) values ('" . $_SESSION['ldap'] . "','" . $dateentry . "','" . $i . "','" . ($taskdescription) . "','" . $taskhours . "')");
                 // Insert query updated to include default values for new columns
-                mysqli_query($link, "insert into `daily_reporting_data` (`ldap`,`date`,`taskid`,`taskdesc`,`hours`,`manager_ldap`,`score`,`score_timestamp`,`status`) 
-                values ('" . $_SESSION['ldap'] . "','" . $dateentry . "','" . $i . "','" . ($taskdescription) . "','" . $taskhours . "', NULL, '', NULL,0)");
+                mysqli_query($link, "insert into `daily_reporting_data` (`ldap`,`date`,`taskid`,`taskdesc`,`hours`,`manager_ldap`,`score`,`score_timestamp`) 
+                values ('" . $_SESSION['ldap'] . "','" . $dateentry . "','" . $i . "','" . ($taskdescription) . "','" . $taskhours . "', NULL, '0', NULL)");
             }
         }
 

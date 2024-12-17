@@ -18,18 +18,15 @@ $worker_result = mysqli_query($link2, $qry);
 
 
 if (mysqli_num_rows($worker_result) <= 0) {
-    // No workers found under the current ldap session
     $is_manager = false;
 } else {
     $is_manager = true;
-    // Fetch all worker IDs
     $worker_ids = [];
     while ($worker = mysqli_fetch_array($worker_result)) {
         $worker_ids[] = $worker['member_id'];
     }
 }
 
-// Prepare SQL based on the role
 if ($is_manager) {
     $worker_ids_string = implode(",", $worker_ids);
     $sql = "SELECT a.ldap, a.date, SUM(a.hours) as t_hours 
@@ -37,7 +34,7 @@ if ($is_manager) {
             WHERE a.ldap IN ($worker_ids_string) 
             GROUP BY a.ldap, a.date";
 } else {
-    $sql = ""; // Empty query since no calendar data will be shown
+    $sql = "";
 }
 
 $page = "team_calendar";
@@ -50,28 +47,10 @@ $lcolor = '';
 $tcolor = '';
 $newname = '';
 
-// $datasql = mysqli_query($link, $sql);
-
-// while ($datar = mysqli_fetch_array($datasql)) {
-//     $newname = getName($datar["ldap"]);
-//     $data[] = array(
-//         "id" => $rid,
-//         "title" => $newname . " =>\n " . getHoursMinutes($datar["t_hours"]) . " hours",
-//         "description" => $datar["t_hours"] . " Minutes",
-//         "start" => $datar["date"],
-//         "end" => $datar["date"],
-//         "color" => $lcolor,   // a non-ajax option
-//         "textColor" => $tcolor, // a non-ajax option	
-//         "url" => "daily_reporting_entry.php?frompage=cal&user=" . $datar["ldap"] . "&datepicker=" . $datar["date"] . "",
-//     );
-//     $rid++;
-// }
-
 // Check if $sql is not empty before executing the query
 if (!empty($sql)) {
     $datasql = mysqli_query($link, $sql);
 
-    // Check for errors in the query execution
     if (!$datasql) {
         die("Error in query execution: " . mysqli_error($link));
     }
@@ -84,14 +63,14 @@ if (!empty($sql)) {
             "description" => $datar["t_hours"] . " Minutes",
             "start" => $datar["date"],
             "end" => $datar["date"],
-            "color" => $lcolor,   // a non-ajax option
-            "textColor" => $tcolor, // a non-ajax option    
+            "color" => $lcolor,
+            "textColor" => $tcolor,
             "url" => "manager_reporting_entry.php?frompage=cal&user=" . $datar["ldap"] . "&datepicker=" . $datar["date"] . "",
         );
         $rid++;
     }
 } else {
-    $data = []; // No data for non-managers
+    $data = [];
 }
 
 
@@ -115,9 +94,9 @@ if (!empty($sql)) {
                     <?php if (!$is_manager) { ?>
                         <p style="padding:20px; text-align:center; font-size:18px; color:red; font-weight:bold;">You are not a manager.</p>
                     <?php } else { ?>
-                        <a href="download_details.php" style="text-align:right; text-decoration:none; vertical-align:middle; font-weight:bold;">
+                        <!-- <a href="download_details.php" style="text-align:right; text-decoration:none; vertical-align:middle; font-weight:bold;">
                             Download <img src="images/save.png" alt="save as csv" />
-                        </a><br />
+                        </a><br /> -->
                         <div id='calendar'></div>
                     <?php } ?>
                     <br /><br />
