@@ -73,8 +73,6 @@ if (!empty($sql)) {
     $data = [];
 }
 
-
-
 ?>
 
 <?php include('header.php'); ?>
@@ -88,7 +86,6 @@ if (!empty($sql)) {
                     <?php include('menu.php'); ?>
                 </div>
             </div>
-
             <div id="about_right">
                 <div style="padding-top:20px;">
                     <?php if (!$is_manager) { ?>

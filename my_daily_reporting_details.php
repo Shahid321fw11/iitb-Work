@@ -178,6 +178,7 @@ if ((isset($_REQUEST["from"]) && ($_REQUEST["from"] != "")) && (isset($_REQUEST[
                         </tr>
 
                         <?php
+                        $totalDates = array();
                         if (isset($_REQUEST["searchuser"])) {
                             $sql = "";
                             $esql = "";
@@ -207,6 +208,9 @@ if ((isset($_REQUEST["from"]) && ($_REQUEST["from"] != "")) && (isset($_REQUEST[
                                     $slothours = 0;
                                     $slothourstotal = 0;
                                     $slothoursepoch = 0;
+                                    $date = date("Y-m-d", strtotime($record["date"])); // Format the date
+                                    array_push($totalDates, $date) // Add the date to the PHP array
+
 
                         ?>
 
@@ -281,9 +285,29 @@ if ((isset($_REQUEST["from"]) && ($_REQUEST["from"] != "")) && (isset($_REQUEST[
                             }
                         }
                         ?>
-                        <tr>
+                        <!-- <tr>
                             <td colspan="<?php echo $colspan; ?>" align="left"><b><?php if (isset($_REQUEST["searchuser"])) { ?>Total hours in selected date range=> <?php echo getHoursMinutes($daterangesum); ?> <?php } ?></b></td>
+                        </tr> -->
+                        <tr>
+                            <td colspan="<?php echo $colspan + 1; ?>">
+                                <b>
+
+                                    Total hours in selected date range => <?php echo getHoursMinutes($daterangesum); ?> |
+                                    Total Score => <?php
+
+                                                    $safeDates = $totalDates;
+                                                    $safeUserLdap = $_REQUEST["user"];
+
+                                                    // Now calculate and echo the total score
+                                                    $getScoreResultTotal = getScoreTotal($safeUserLdap, $totalDates);
+                                                    echo $getScoreResultTotal;
+                                                    ?>
+
+                                </b>
+                            </td>
                         </tr>
+
+
                     </table>
                     </form>
                     <br /><br />

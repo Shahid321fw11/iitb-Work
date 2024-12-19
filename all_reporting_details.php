@@ -254,9 +254,8 @@ if ((isset($_REQUEST["from"]) && ($_REQUEST["from"] != "")) && (isset($_REQUEST[
                                         Total hours in selected date range => <?php echo getHoursMinutes($daterangesum); ?> |
                                         Total Score => <?php
 
-                                                        // Ensure $totalDates and $userldap are safely formatted
-                                                        $safeDates = $totalDates; // Convert PHP array to JSON format
-                                                        $safeUserLdap = isset($_REQUEST["user"]) ? addslashes($_REQUEST["user"]) : 'N/A';
+                                                        $safeDates = $totalDates;
+                                                        $safeUserLdap = $_REQUEST["user"];
 
                                                         // Log the values to console
                                                         // echo "<script>";

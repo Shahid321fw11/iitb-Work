@@ -13,12 +13,11 @@ if (!isset($_SESSION['ldap'])) {
 $page = "";
 if (isset($_REQUEST['frompage'])) {
     if ($_REQUEST['frompage'] === "cal") {
-        $page = "all_calendar";
+        $page = "calendar";
     } elseif ($_REQUEST['frompage'] === "detail") {
-        $page = "all_details";
+        $page = "details";
     }
 }
-
 $userldap = $_SESSION['ldap'];
 $editflagno = 0;
 
@@ -49,6 +48,8 @@ if (strtotime($curr_dt_time) < $finalenddt) {
     $enableflag = 1;
 }
 
+
+
 $predatesql = mysqli_query($link, "select distinct(date) from daily_reporting_data where ldap='" . $_SESSION['ldap'] . "'");
 $predates = array();
 while ($fdata = mysqli_fetch_array($predatesql)) {
@@ -63,12 +64,18 @@ while ($fdata = mysqli_fetch_array($predatesql)) {
 <?php
 
 if (isset($_REQUEST["drentry"])) {
+
+
     $dateentry = check_date(mysqli_real_escape_string($link, $_REQUEST['datepicker1']));
     $tasks = array();
     $hours = array();
     $minutes = array();
+
+
     $tasks = array_map(array($link, 'real_escape_string'), $_REQUEST["task"]);
     $hours = array_map(array($link, 'real_escape_string'), $_REQUEST["hours"]);
+
+
 
     $i = 1;
     for ($counter = 0; $counter < count($tasks); $counter++) {
@@ -83,10 +90,7 @@ if (isset($_REQUEST["drentry"])) {
             if (mysqli_num_rows($existing_task) > 0) {
                 mysqli_query($link, "update `daily_reporting_data` set `taskdesc`='" . ($taskdescription) . "',`hours`='" . $taskhours . "' where `ldap`='" . $_SESSION['ldap'] . "' and `date`='$dateentry' and `taskid`='$i'");
             } else {
-                // $recordset = mysqli_query($link, "insert into `daily_reporting_data` (`ldap`,`date`,`taskid`,`taskdesc`,`hours`) values ('" . $_SESSION['ldap'] . "','" . $dateentry . "','" . $i . "','" . ($taskdescription) . "','" . $taskhours . "')");
-                // Insert query updated to include default values for new columns
-                mysqli_query($link, "insert into `daily_reporting_data` (`ldap`,`date`,`taskid`,`taskdesc`,`hours`,`manager_ldap`,`score`,`score_timestamp`) 
-                values ('" . $_SESSION['ldap'] . "','" . $dateentry . "','" . $i . "','" . ($taskdescription) . "','" . $taskhours . "', NULL, '', NULL)");
+                $recordset = mysqli_query($link, "insert into `daily_reporting_data` (`ldap`,`date`,`taskid`,`taskdesc`,`hours`) values ('" . $_SESSION['ldap'] . "','" . $dateentry . "','" . $i . "','" . ($taskdescription) . "','" . $taskhours . "')");
             }
         }
 
@@ -131,17 +135,13 @@ if (mysqli_num_rows($existing_query) > 0) {
 
 
             <div id="about_right">
-
-
                 <div style="padding-top:20px;">
-
                     <table width="80%" align="center" border="0">
                         <tr>
                             <td colspan="3" align="center">
 
                             </td>
                         </tr>
-
                         <tr>
                             <td>
                                 <b>Date:</b> <?php echo date("d-m-Y", strtotime($date)); ?>
@@ -165,11 +165,19 @@ if (mysqli_num_rows($existing_query) > 0) {
                         <tr>
                             <td><?php if ($editflagno == 1) { ?><b>Updated by:</b> <?php echo getName($userldap); ?> <?php } ?></td>
                             <td><?php if ($editflagno == 1) { ?><b>Updated on:</b> <?php echo date("d-m-Y h:i", strtotime($totalhourrow["timestamp"])); ?> <?php } ?></td>
-                            <td align="center">
+                            <!-- <td align="center">
                                 <?php if ($_REQUEST['frompage'] == "detail") { ?>
-                                    <a style="color:#00F; font-weight:bold;" href="all_reporting_details.php?searchuser=true&user=<?php echo $userldap; ?>&from=<?php echo $_REQUEST['from']; ?>&to=<?php echo $_REQUEST['to']; ?>"> Back </a>
+                                    <a style="color:#00F; font-weight:bold;" href="my_daily_reporting_details.php?searchuser=true&user=<?php echo $userldap; ?>&from=<?php echo $_REQUEST['from']; ?>&to=<?php echo $_REQUEST['to']; ?>"> Back </a>
                                 <?php } else if ($_REQUEST['frompage'] == "cal") { ?>
-                                    <a style="color:#00F; font-weight:bold;" href="all_calendar_view.php"> Back </a>
+                                    <a style="color:#00F; font-weight:bold;" href="my_calender.php?searchuser=true&user=<?php echo $userldap; ?>&from=<?php echo $_REQUEST['from']; ?>&to=<?php echo $_REQUEST['to']; ?>"> Back </a>
+                                <?php } ?>
+                            </td> -->
+
+                            <td align="center">
+                                <?php if ($page === "details") { ?>
+                                    <a style="color:#00F; font-weight:bold;" href="my_daily_reporting_details.php?searchuser=true&user=<?php echo $userldap; ?>&from=<?php echo $_REQUEST['from']; ?>&to=<?php echo $_REQUEST['to']; ?>"> Back </a>
+                                <?php } elseif ($page === "calendar") { ?>
+                                    <a style="color:#00F; font-weight:bold;" href="my_calender.php?searchuser=true&user=<?php echo $userldap; ?>&from=<?php echo $_REQUEST['from']; ?>&to=<?php echo $_REQUEST['to']; ?>"> Back </a>
                                 <?php } ?>
                             </td>
                         </tr>
@@ -181,6 +189,7 @@ if (mysqli_num_rows($existing_query) > 0) {
                                 ?>
                             </td>
                         </tr>
+
 
                     </table>
 
@@ -262,22 +271,18 @@ if (mysqli_num_rows($existing_query) > 0) {
                                         }
                                         ?>
                                     </td>
-
-
                                 </tr>
                             <?php
                                 $sr1++;
                             }
-
                             ?>
-
-
-                            <!-- <tr>
+                            <tr>
                                 <td colspan="2" align="center">
                                     <input <?php if ($editflagno == 1 || $enableflag == 1) { ?> disabled="disabled" <?php } ?> type="submit" name="drentry" value="<?php echo $label; ?>" onClick="return validate_confirm();" />
                                 </td>
                                 <td id="totalhours1"></td>
-                            </tr> -->
+                                <td></td>
+                            </tr>
                         </table>
                     </form>
 

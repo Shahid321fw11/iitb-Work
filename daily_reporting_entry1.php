@@ -29,16 +29,11 @@ if (isset($_REQUEST['datepicker'])) {
 $curr_dt_time = date("Y-m-d");
 $validsql = mysqli_query($link, "select * from daily_reporting_data where ldap='" . $_SESSION['ldap'] . "' and `date`='" . date("Y-m-d", strtotime($date)) . "'");
 
-// if (mysqli_num_rows($validsql) > 0) {
-//     $finalenddt = strtotime("$date + 72 hours");
-// } else {
-//     $finalenddt = strtotime("$date + 1 week");
-// }
-$finalenddt = strtotime("$date + 5 days");
-
-// if (mysqli_num_rows($validsql) > 0) {
-//     $finalenddt = strtotime("$date + 5 days");
-// }
+if (mysqli_num_rows($validsql) > 0) {
+    $finalenddt = strtotime("$date + 72 hours");
+} else {
+    $finalenddt = strtotime("$date + 1 week");
+}
 
 if (strtotime($curr_dt_time) < $finalenddt) {
     $enableflag = 0;

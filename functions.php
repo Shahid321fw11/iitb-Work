@@ -114,9 +114,6 @@ function getScoreTotal($ldap, $dates)
 
 	// Format the total score to 2 decimal places
 	$formattedTotalScore = number_format($totalScore, 2);
-
-	// Log the total score for debugging
-	// echo "<script>console.log('Ldfsdfsodfispdfisodfi: $ldap, Total Score: $formattedTotalScore');</script>";
-
+	// echo "<script>console.log('Ldfsdfsodfispdfisodfi: $ldap, Total Score: $totalScore');</script>";
 	return $formattedTotalScore;
 }

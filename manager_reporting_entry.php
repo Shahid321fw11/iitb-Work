@@ -1,11 +1,8 @@
 <?php
 require("dbconnect.php");
-include('functions.php');
+include("functions.php");
 include "validation.php";
 
-// ini_set('display_errors', 1);
-// ini_set('display_startup_errors', 1);
-// error_reporting(E_ALL);
 
 session_start();
 if (!isset($_SESSION['ldap'])) {
@@ -23,6 +20,7 @@ if (isset($_REQUEST['frompage'])) {
 }
 $userldap = $_SESSION['ldap'];
 $editflagno = 0;
+// echo 'edit', $editflagno;
 $date = date("Y-m-d");
 if (isset($_REQUEST['user'])) {
     $userldap = mysqli_real_escape_string($link, $_REQUEST['user']);
@@ -30,23 +28,28 @@ if (isset($_REQUEST['user'])) {
         $editflagno = 1;
     }
 }
+// echo 'edit', $editflagno;
+
 
 if (isset($_REQUEST['datepicker'])) {
     $date = check_date(mysqli_real_escape_string($link, $_REQUEST['datepicker']));
 }
 
 $curr_dt_time = date("Y-m-d");
-$validsql = mysqli_query($link, "select * from daily_reporting_data where ldap='" . $_SESSION['ldap'] . "' and `date`='" . date("Y-m-d", strtotime($date)) . "'");
-
+// $validsql = mysqli_query($link, "select * from daily_reporting_data where ldap='" . $_SESSION['ldap'] . "' and `date`='" . date("Y-m-d", strtotime($date)) . "'");
 $totalhours = 0;
-
 $existing_query = mysqli_query($link, "select * from daily_reporting_data where date='" . $date . "' and ldap='" . $userldap . "' order by id asc");
 if (mysqli_num_rows($existing_query) > 0) {
     $totalhourrow = mysqli_fetch_array(mysqli_query($link, "select sum(hours) as t,timestamp from daily_reporting_data where date='" . $date . "' and ldap='" . $userldap . "'"));
 }
 ?>
 
-<?php include('header.php'); ?>
+<?php include('header.php');
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
+
+?>
 
 <div id="main">
     <div class="midContent_about">
@@ -122,7 +125,7 @@ if (mysqli_num_rows($existing_query) > 0) {
                                 while ($record = mysqli_fetch_array($existing_query)) {
                                     $taskarray[$sr]["taskdesc"] = $record["taskdesc"];
                                     $taskarray[$sr]["hours"] = $record["hours"];
-                                    $taskarray[$sr1]['date'] = $record['date'];
+                                    $taskarray[$sr]['date'] = $record['date'];
                                     $sr++;
                                 }
                             }
@@ -159,9 +162,9 @@ if (mysqli_num_rows($existing_query) > 0) {
                                             // echo "score data View: " . $score_data . "<br>";
                                             if ($score_data['score'] == '0') {
                                                 $days_difference = (strtotime($curr_dt_time) - strtotime($date)) / (60 * 60 * 24);
-                                                // echo "Days Difference: " . $days_difference . "<br>";
+                                                echo "Days Difference: " . $days_difference . "<br>";
                                                 if ($days_difference > 5) {
-                                                    // echo"if";
+                                                    // echo "big";
                                             ?>
                                                     <input type="radio" name="score_<?php echo $sr1; ?>" id="thumbs_up_<?php echo $sr1; ?>"
                                                         onchange="updateScore(<?php echo $sr1; ?>, '1/<?php echo $sr; ?>')" />
@@ -233,43 +236,100 @@ if (mysqli_num_rows($existing_query) > 0) {
 <!-- JavaScript to handle the score update -->
 <script>
     function updateScore(taskId, score) {
-        console.log('Score updated successfully inside');
+        console.log('Function called with:', {
+            taskId,
+            score
+        }); // Log function parameters
+
         var date = '<?php echo $date; ?>'; // Get the current date
+        console.log('Date:', date);
+
         var taskid = taskId + 1; // Task id starts from 1
-        console.log(score, typeof(score))
-        // alert("pause")
+        console.log('Task ID:', taskid);
+
         var scoreValue = score;
-        var managerLdap = '<?php echo $userldap; ?>';
-        // Send AJAX request to update the score
+        console.log('Score Value:', scoreValue);
+
+        var managerLdap = '<?php echo $_SESSION['ldap']; ?>'; // Get manager LDAP
+        console.log('Manager LDAP:', managerLdap);
+
+        // Initialize XMLHttpRequest
         var xhr = new XMLHttpRequest();
         xhr.open('POST', 'manager_reporting_entry.php', true);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        // alert('wait');
+
         xhr.onreadystatechange = function() {
+            console.log('XHR Ready State:', xhr.readyState); // Log ready state
+
             if (xhr.readyState == 4 && xhr.status == 200) {
+                console.log('XHR Ready State:', xhr.readyState, xhr.status); // Log ready state
+
                 console.log('Score updated successfully');
-                window.location.reload(); // Reload the page
+                // alert('wait')
+
+                // window.location.reload(); // Reload the page
             }
         };
-        xhr.send('action=update_score&date=' + date + '&taskid=' + taskid + '&score=' + scoreValue);
+
+        xhr.onerror = function() {
+            console.error('XHR encountered an error:', xhr.statusText); // Log network error
+        };
+
+        // Send the request
+        var params = 'action=update_score&date=' + date + '&taskid=' + taskid + '&score=' + scoreValue + '&manager_ldap=' + managerLdap;
+        // var params = 'action=update_score&date=' + date + '&taskid=' + taskid + '&score=' + scoreValue;
+        console.log('XHR Params:', params); // Log parameters being sent
+        xhr.send(params);
+        // alert('wait');
+
     }
 </script>
 
 <?php
+// Enable error reporting
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 if (isset($_POST['action']) && $_POST['action'] == 'update_score') {
+    // Log the incoming POST data
+    error_log('POST data: ' . print_r($_POST, true));
+
+    // Extract parameters from POST request
     $taskid = $_POST['taskid'];
     $score = $_POST['score'];
     $date = $_POST['date'];
-    $manager_ldap = $_POST['manager_ldap']; // Manager LDAP passed via AJAX
-    // Fetch the row ID using the combination of date and taskid (since it's unique for each record)
+    $manager_ldap = $_POST['manager_ldap'];
+
+    // Fetch the row ID using the combination of date and taskid
     $task_query = mysqli_query($link, "SELECT id FROM daily_reporting_data WHERE date = '$date' AND taskid = '$taskid'");
+    if (!$task_query) {
+        error_log('Task Query Error: ' . mysqli_error($link));
+        echo 'Error in task query';
+        exit;
+    }
+
     $task = mysqli_fetch_array($task_query);
     if ($task) {
         $task_id = $task['id'];
-        // Update the score and set the manager_ldap value
-        $update_query = "UPDATE daily_reporting_data SET score = '$score', manager_ldap = '" . $_SESSION['ldap'] . "', score_timestamp = NOW() WHERE id = '$task_id'";
-        mysqli_query($link, $update_query);
-        echo 'Score updated successfully';
+
+        // Update the score and manager_ldap value
+        $update_query = "UPDATE daily_reporting_data SET 
+                            score = '$score', 
+                            manager_ldap = '" . $_SESSION['ldap'] . "', 
+                            score_timestamp = NOW() 
+                         WHERE id = '$task_id'";
+        $update_result = mysqli_query($link, $update_query);
+
+        if (!$update_result) {
+            error_log('Update Query Error: ' . mysqli_error($link));
+            echo 'Error updating score';
+        } else {
+            echo 'Score updated successfully';
+        }
     } else {
+        error_log('Task not found for date: ' . $date . ' and taskid: ' . $taskid);
         echo 'Task not found';
     }
 }
